@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}YouTube Shorts Generator - Create Viral Shorts with AI{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Hero Section -->
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-magic me-3 text-primary"></i>
+                AI-Powered YouTube Shorts Generator
+            </h1>
+            <p class="lead mb-4">
+                Transform any YouTube video into engaging vertical shorts with the power of Gemini AI.
+                Automatic content analysis, vertical cropping, and metadata generation.
+            </p>
+            
+            {% if not youtube_connected %}
+                <div class="alert alert-info mb-4">
+                    <i class="fab fa-youtube me-2"></i>
+                    <strong>Connect your YouTube account</strong> to automatically upload generated shorts.
+                    <a href="{{ url_for('youtube_auth') }}" class="btn btn-sm btn-outline-primary ms-2">
+                        Connect Now
+                    </a>
+                </div>
+            {% else %}
+                <div class="alert alert-success mb-4">
+                    <i class="fab fa-youtube me-2"></i>
+                    <strong>YouTube Connected!</strong> Your shorts will be automatically uploaded.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Form -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-link me-2"></i>
+                        Generate Shorts from YouTube Video
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('submit_video') }}">
+                        <div class="mb-4">
+                            <label for="youtube_url" class="form-label">YouTube Video URL</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fab fa-youtube text-danger"></i>
+                                </span>
+                                <input type="url" 
+                                       class="form-control form-control-lg" 
+                                       id="youtube_url" 
+                                       name="youtube_url" 
+                                       placeholder="https://www.youtube.com/watch?v=..." 
+                                       required>
+                            </div>
+                            <div class="form-text">
+                                Paste any YouTube video URL to generate shorts automatically
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="video_quality" class="form-label">Video Quality</label>
+                                <select class="form-select" id="video_quality" name="video_quality">
+                                    <option value="1080p" selected>1080p (Full HD)</option>
+                                    <option value="720p">720p (HD)</option>
+                                    <option value="best">Best Available</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="aspect_ratio" class="form-label">Output Aspect Ratio</label>
+                                <select class="form-select" id="aspect_ratio" name="aspect_ratio">
+                                    <option value="9:16" selected>9:16 (Vertical - Recommended)</option>
+                                    <option value="1:1">1:1 (Square)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-magic me-2"></i>
+                            Generate Shorts with AI
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4">How It Works</h2>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="text-center">
+                <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                    <i class="fas fa-download text-white fa-lg"></i>
+                </div>
+                <h5>1. Download</h5>
+                <p class="text-muted">High-quality video download in 1080p Full HD</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="text-center">
+                <div class="bg-info rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                    <i class="fas fa-brain text-white fa-lg"></i>
+                </div>
+                <h5>2. AI Analysis</h5>
+                <p class="text-muted">Gemini AI finds the most engaging moments</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="text-center">
+                <div class="bg-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                    <i class="fas fa-cut text-white fa-lg"></i>
+                </div>
+                <h5>3. Edit</h5>
+                <p class="text-muted">Automatic vertical cropping and optimization</p>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="text-center">
+                <div class="bg-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                    <i class="fas fa-upload text-white fa-lg"></i>
+                </div>
+                <h5>4. Upload</h5>
+                <p class="text-muted">Direct upload to your YouTube channel</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Jobs -->
+    {% if recent_jobs %}
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-4">
+                <i class="fas fa-history me-2"></i>
+                Recent Jobs
+            </h3>
+            <div class="row">
+                {% for job in recent_jobs %}
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h6 class="card-title">{{ job.title[:50] + '...' if job.title and job.title|length > 50 else (job.title or 'Processing...') }}</h6>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ job.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                </small>
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-{{ 'success' if job.status.value == 'completed' else 'primary' if job.status.value in ['pending', 'downloading', 'transcribing', 'analyzing', 'editing'] else 'danger' }}">
+                                    {{ job.status.value.title() }}
+                                </span>
+                                {% if job.status.value == 'completed' %}
+                                    <a href="{{ url_for('results', job_id=job.id) }}" class="btn btn-sm btn-outline-primary">
+                                        View Results
+                                    </a>
+                                {% else %}
+                                    <a href="{{ url_for('process', job_id=job.id) }}" class="btn btn-sm btn-outline-secondary">
+                                        View Status
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-3">
+                <a href="{{ url_for('list_jobs') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-list me-1"></i>
+                    View All Jobs
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
